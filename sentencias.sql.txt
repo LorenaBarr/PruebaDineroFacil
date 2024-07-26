@@ -1,0 +1,38 @@
+-- A. Nombre de la oficina de la cual es gerente una persona, de la cual conocemos el nombre
+SELECT nombre 
+FROM OFICINA 
+WHERE gerente LIKE '%[NOMBRE_PARCIAL]%';
+
+-- B. Nombre de todas las oficinas que posee la empresa. Incluir en la consulta el nombre de la ciudad y del departamento en el cual se encuentran.
+SELECT OFICINA.nombre AS nombre_oficina, CIUDADES.nombre AS nombre_ciudad, DEPARTAMENTO.nombre AS nombre_departamento
+FROM OFICINA
+JOIN CIUDADES ON OFICINA.cod_ciudad = CIUDADES.codigo
+JOIN DEPARTAMENTO ON CIUDADES.cod_departamento = DEPARTAMENTO.codigo;
+
+-- C. Listado (nombre) de las oficinas en las cuales se encuentra un producto en particular, del cual se conoce parcialmente el NOMBRE
+SELECT DISTINCT OFICINA.nombre AS nombre_oficina
+FROM OFICINA
+JOIN INVENTARIO ON OFICINA.codigo = INVENTARIO.cod_oficina
+JOIN PRODUCTO ON INVENTARIO.cod_producto = PRODUCTO.codigo
+WHERE PRODUCTO.descripcion LIKE '%[NOMBRE_PARCIAL_PRODUCTO]%';
+
+-- D. Nombre de la oficina que posee la mayor cantidad de existencia en toda la empresa (sumar todas las existencias de la oficina).
+SELECT OFICINA.nombre AS nombre_oficina
+FROM OFICINA
+JOIN INVENTARIO ON OFICINA.codigo = INVENTARIO.cod_oficina
+GROUP BY OFICINA.nombre
+ORDER BY SUM(INVENTARIO.existencia) DESC
+LIMIT 1;
+
+-- E. Listado de las oficinas que poseen una existencia menor a “###”. Incluir en el listado oficina, ciudad, producto y existencia
+SELECT OFICINA.nombre AS nombre_oficina, CIUDADES.nombre AS nombre_ciudad, PRODUCTO.descripcion AS nombre_producto, INVENTARIO.existencia
+FROM OFICINA
+JOIN INVENTARIO ON OFICINA.codigo = INVENTARIO.cod_oficina
+JOIN CIUDADES ON OFICINA.cod_ciudad = CIUDADES.codigo
+JOIN PRODUCTO ON INVENTARIO.cod_producto = PRODUCTO.codigo
+WHERE INVENTARIO.existencia < [###];
+
+-- F. Sentencia que actualice la existencia de todos los productos del inventario que pertenezcan a una oficina de una ciudad en particular
+UPDATE INVENTARIO
+SET existencia = [NUEVA_EXISTENCIA]
+WHERE cod_oficina IN (SELECT codigo FROM OFICINA WHERE cod_ciudad = [CODIGO_CIUDAD]);
